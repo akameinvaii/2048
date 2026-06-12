@@ -16,6 +16,7 @@
     let gameOver = false;
     let won = false;
     let keepPlaying = false;
+    let tileMap = new Map(); // 缓存已创建的方块DOM元素
 
     // ============ 初始化 ============
     function init() {
@@ -24,6 +25,8 @@
         gameOver = false;
         won = false;
         keepPlaying = false;
+        tileMap.forEach(tile => tile.remove());
+        tileMap.clear();
         bestScore = parseInt(localStorage.getItem('2048_best') || '0');
         updateUI();
         overlay.classList.add('hidden');
@@ -163,57 +166,91 @@
     }
 
     // ============ 渲染 ============
-    function renderTiles(mergeMap = null, oldGrid = null) {
-        tileContainer.innerHTML = '';
+    function getTileKey(r, c) { return r + ',' + c; }
 
+    function getTileClasses(value) {
+        if (value <= 2048) return 'tile tile-' + value;
+        return 'tile tile-super';
+    }
+
+    function getTileFontSize(cellSize, value) {
+        const len = String(value).length;
+        if (len <= 2) return Math.max(cellSize * 0.45, 20);
+        if (len === 3) return Math.max(cellSize * 0.36, 16);
+        return Math.max(cellSize * 0.28, 12);
+    }
+
+    function renderTiles(mergeMap = null, oldGrid = null) {
         const containerWidth = tileContainer.clientWidth;
         const gap = 12;
         const totalGaps = gap * (SIZE + 1);
         const cellSize = (containerWidth - totalGaps) / SIZE;
+
+        const newKeys = new Set();
 
         for (let r = 0; r < SIZE; r++) {
             for (let c = 0; c < SIZE; c++) {
                 const value = grid[r][c];
                 if (value === 0) continue;
 
-                const tile = document.createElement('div');
-                tile.className = 'tile';
-                tile.textContent = value;
+                const key = getTileKey(r, c);
+                newKeys.add(key);
 
-                // 颜色类
-                if (value <= 2048) {
-                    tile.classList.add('tile-' + value);
+                const left = (gap + c * (cellSize + gap)) + 'px';
+                const top = (gap + r * (cellSize + gap)) + 'px';
+                const size = cellSize + 'px';
+                const fontSize = getTileFontSize(cellSize, value) + 'px';
+                const classes = getTileClasses(value);
+                const isMerged = mergeMap && mergeMap[r][c];
+                const isNew = oldGrid && oldGrid[r][c] === 0;
+
+                let tile = tileMap.get(key);
+                if (tile) {
+                    // 复用已有方块
+                    const valueChanged = parseInt(tile.textContent) !== value;
+                    tile.className = classes;
+                    if (isMerged) {
+                        tile.classList.add('merged');
+                        if (valueChanged) {
+                            // 强制重新触发动画：先移除触发重绘再添加
+                            void tile.offsetWidth;
+                            tile.classList.remove('merged');
+                            void tile.offsetWidth;
+                            tile.classList.add('merged');
+                        }
+                    }
+                    if (isNew) tile.classList.add('new-tile');
+                    tile.textContent = value;
+                    tile.style.left = left;
+                    tile.style.top = top;
+                    tile.style.width = size;
+                    tile.style.height = size;
+                    tile.style.fontSize = fontSize;
                 } else {
-                    tile.classList.add('tile-super');
+                    // 创建新方块
+                    tile = document.createElement('div');
+                    tile.className = classes;
+                    if (isMerged) tile.classList.add('merged');
+                    if (isNew) tile.classList.add('new-tile');
+                    tile.textContent = value;
+                    tile.style.left = left;
+                    tile.style.top = top;
+                    tile.style.width = size;
+                    tile.style.height = size;
+                    tile.style.fontSize = fontSize;
+                    tileContainer.appendChild(tile);
+                    tileMap.set(key, tile);
                 }
-
-                // 合并动画
-                if (mergeMap && mergeMap[r][c]) {
-                    tile.classList.add('merged');
-                }
-
-                // 新增方块动画（仅对新增的方块）
-                if (oldGrid && oldGrid[r][c] === 0) {
-                    tile.classList.add('new-tile');
-                }
-
-                // 位置
-                tile.style.left = (gap + c * (cellSize + gap)) + 'px';
-                tile.style.top = (gap + r * (cellSize + gap)) + 'px';
-                tile.style.width = cellSize + 'px';
-                tile.style.height = cellSize + 'px';
-
-                // 字号
-                const len = String(value).length;
-                let fontSize;
-                if (len <= 2) fontSize = Math.max(cellSize * 0.45, 20);
-                else if (len === 3) fontSize = Math.max(cellSize * 0.36, 16);
-                else fontSize = Math.max(cellSize * 0.28, 12);
-                tile.style.fontSize = fontSize + 'px';
-
-                tileContainer.appendChild(tile);
             }
         }
+
+        // 移除不再存在的方块
+        tileMap.forEach((tile, key) => {
+            if (!newKeys.has(key)) {
+                tile.remove();
+                tileMap.delete(key);
+            }
+        });
     }
 
     function updateUI() {
