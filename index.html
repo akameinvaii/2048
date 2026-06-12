@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2048</h1>
+            <div class="scores">
+                <div class="score-box">
+                    <span class="score-label">分数</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="score-box">
+                    <span class="score-label">最高分</span>
+                    <span class="score-value" id="best">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="sub-header">
+            <p class="desc">合并数字，得到 <strong>2048</strong> 方块!</p>
+            <button id="restartBtn" class="btn">新游戏</button>
+        </div>
+        <div class="game-wrapper">
+            <div class="grid-container">
+                <div class="grid-bg">
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+                <div class="tile-container" id="tileContainer"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <p>方向键移动 · 手机滑动操作</p>
+        </div>
+    </div>
+    <div id="gameOverlay" class="overlay hidden">
+        <div class="overlay-content">
+            <h2 id="overlayTitle">游戏结束!</h2>
+            <button id="overlayBtn" class="btn">再来一局</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
