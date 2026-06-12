@@ -150,7 +150,6 @@ h1 {
     justify-content: center;
     font-weight: bold;
     border-radius: 6px;
-    transition: transform 120ms ease-in-out, left 100ms ease-in-out, top 100ms ease-in-out;
 }
 
 .tile.new-tile {
