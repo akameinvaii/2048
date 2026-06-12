@@ -109,6 +109,7 @@ h1 {
 
 .game-wrapper {
     position: relative;
+    touch-action: none;
 }
 
 .grid-container {
@@ -116,6 +117,7 @@ h1 {
     width: 100%;
     aspect-ratio: 1;
     max-width: 500px;
+    touch-action: none;
 }
 
 .grid-bg {

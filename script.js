@@ -255,11 +255,17 @@
     const MIN_SWIPE = 30;
 
     tileContainer.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-    }, { passive: true });
+    }, { passive: false });
+
+    tileContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+    }, { passive: false });
 
     tileContainer.addEventListener('touchend', (e) => {
+        e.preventDefault();
         if (gameOver || (won && !keepPlaying)) return;
         const dx = e.changedTouches[0].clientX - touchStartX;
         const dy = e.changedTouches[0].clientY - touchStartY;
