@@ -134,17 +134,17 @@
         if (changed) {
             if (won && !keepPlaying) {
                 updateUI();
-                renderTiles(mergeMap);
+                renderTiles(mergeMap, oldGrid);
                 showWin();
                 return;
             }
             addRandomTile();
             updateUI();
-            renderTiles(mergeMap);
+            renderTiles(mergeMap, oldGrid);
             if (isGameOver()) {
                 gameOver = true;
                 updateUI();
-                renderTiles();
+                renderTiles(null, oldGrid);
                 showGameOver();
             }
         }
@@ -163,7 +163,7 @@
     }
 
     // ============ 渲染 ============
-    function renderTiles(mergeMap = null) {
+    function renderTiles(mergeMap = null, oldGrid = null) {
         tileContainer.innerHTML = '';
 
         const containerWidth = tileContainer.clientWidth;
@@ -190,6 +190,11 @@
                 // 合并动画
                 if (mergeMap && mergeMap[r][c]) {
                     tile.classList.add('merged');
+                }
+
+                // 新增方块动画（仅对新增的方块）
+                if (oldGrid && oldGrid[r][c] === 0) {
+                    tile.classList.add('new-tile');
                 }
 
                 // 位置
